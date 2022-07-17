@@ -1,11 +1,7 @@
 {
-    "name": "chrome-extension-svelte-typescript-boilerplate",
-    "version": "2.0.0",
+    "name": "chrome-extension-command-palette",
+    "version": "0.0.1",
     "type": "module",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nekitcorp/chrome-extension-svelte-typescript-boilerplate.git"
-    },
     "scripts": {
         "dev": "vite build -w",
         "build": "vite build",

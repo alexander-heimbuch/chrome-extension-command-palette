@@ -1,7 +1,7 @@
 {
   "name": "Command Palette",
-  "description": "Search Tabs, Bookmarks, Settings like in VS Code",
-  "version": "1.0",
+  "description": "Search Tabs and Bookmarks like in VS Code",
+  "version": "0.0.1",
   "manifest_version": 3,
   "icons": {
     "16": "/icons/command-line-16.png",
