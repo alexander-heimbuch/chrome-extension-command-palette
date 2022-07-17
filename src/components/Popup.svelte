@@ -1,91 +1,47 @@
 <script lang="ts">
-  import { sendMessage } from 'src/helper/messages'
+  import { data, handleItem, searchItems, selectNextItem, selectPreviousItem, init } from 'src/data'
   import { onDestroy, onMount } from 'svelte'
-  import { writable } from 'svelte/store'
+  import Tab from './Tab.svelte'
+  import Bookmark from './Bookmark.svelte'
 
-  export let tabHistory
-  let tabs
+  export let tabs
+  export let bookmarks
+  let items
+  let mode
   let commandAction = false
-  let searchInput
+  let searchInput: HTMLInputElement
 
-  const tabsStore = writable([])
+  init({ tabs, bookmarks })
 
-  const reset = (items) =>
-    items.slice(0, 15).map((tab, index) => ({
-      ...tab,
-      active: index === 0
-    }))
+  const handleSubmit = () => {
+    const activeItem = items.find((tab) => tab.active === true);
 
-  tabsStore.set(reset(tabHistory))
-
-  function switchTab(tab) {
-    sendMessage('switchTab', tab)
-    setTimeout(() => {
-      window.close()
-    }, 100)
-  }
-
-  function selectNextTab() {
-    tabsStore.update((tabs) => {
-      const currentIndex = tabs.findIndex((tab) => tab.active)
-
-      if (currentIndex + 1 === tabs.length) {
-        return tabs.map((tab, index) => ({
-          ...tab,
-          active: index === 0
-        }))
-      }
-
-      return tabs.map((tab, index) => ({ ...tab, active: index === currentIndex + 1 }))
-    })
-  }
-
-  function selectPreviousTab() {
-    tabsStore.update((tabs) => {
-      const currentIndex = tabs.findIndex((tab) => tab.active)
-
-      if (currentIndex === 0) {
-        return tabs.map((tab, index) => ({
-          ...tab,
-          active: index === tabs.length - 1
-        }))
-      }
-
-      return tabs.map((tab, index) => ({ ...tab, active: index === currentIndex - 1 }))
-    })
-  }
-
-  function searchTabs(event: any) {
-    const query = event?.target?.value
-
-    tabsStore.set(
-      reset(
-        tabHistory.filter((tab) => !query || tab.title.toUpperCase().includes(query.toUpperCase()))
-      )
-    )
+    if (activeItem) {
+      return handleItem(activeItem)
+    }
   }
 
   const keydownEvents = (event: KeyboardEvent) => {
     switch (true) {
       case event.key === 'ArrowDown':
         event.preventDefault()
-        selectNextTab()
+        selectNextItem()
         break
 
       case event.key === 'ArrowUp':
         event.preventDefault()
-        selectPreviousTab()
+        selectPreviousItem()
         break
 
       case event.key === 'p' && event.metaKey:
         event.preventDefault()
         commandAction = true
-        selectNextTab()
+        selectNextItem()
         break
 
       case event.key === 'Enter':
         event.preventDefault()
-        switchTab(tabs.find((tab) => tab.active === true))
+        handleSubmit()
         break
 
       case event.key === 'Esc':
@@ -98,13 +54,14 @@
     switch (true) {
       case event.key === 'Meta' && commandAction:
         event.preventDefault()
-        switchTab(tabs.find((tab) => tab.active === true))
+        handleItem(items.find((tab) => tab.active === true))
         break
     }
   }
 
-  const unsubscribe = tabsStore.subscribe((value) => {
-    tabs = value
+  const unsubscribe = data.subscribe((state) => {
+    items = state.items
+    mode = state.mode
   })
 
   document.addEventListener('keydown', keydownEvents)
@@ -122,20 +79,23 @@
     placeholder="Search tabs by name"
     type="text"
     bind:this={searchInput}
-    on:input={(e) => searchTabs(e)}
+    on:input={(e) => searchItems(e)}
   />
-  {#if tabs.length > 0}
+  {#if items.length > 0}
     <ul>
-      {#each tabs as tab, i}
+      {#each items as item, i}
         <li>
-          <button class="command-entry" on:click={() => switchTab(tab)} class:active={tab.active}>
-            {#if tab.favIconUrl}
-              <img src={tab.favIconUrl} class="command-icon" alt="favicon" />
-            {:else}
-              <span class="command-icon" />
-            {/if}
-            <span class="command-text">{tab.title}</span></button
+          <button
+            class="command-entry"
+            on:click={() => handleItem(item)}
+            class:active={item.active}
           >
+            {#if mode === 'tabs'}
+              <Tab {item} />
+            {/if}
+            {#if mode === 'bookmarks'}
+              <Bookmark {item} />
+            {/if}
         </li>
       {/each}
     </ul>
@@ -200,23 +160,11 @@
     cursor: pointer;
   }
 
-  .command-text {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
 
   .command-entry.active {
     background: #1177bb;
   }
-
   .command-entry:hover {
     background: #264f78;
-  }
-
-  .command-icon {
-    margin-right: 8px;
-    width: 14px;
-    height: 14px;
   }
 </style>
