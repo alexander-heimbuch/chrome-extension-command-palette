@@ -1,13 +1,15 @@
 import { writable } from 'svelte/store'
 import { sendMessage } from './helper/messages'
 import type { Bookmark, Item, State, Tab } from './types'
+import shortcuts from './chrome-shortcuts'
 
 export const data = writable<State>({
   mode: 'tabs',
   tabs: [],
   bookmarks: [],
   items: [],
-  query: ''
+  query: '',
+  shortcuts: shortcuts.map((shortcut) => ({ ...shortcut, type: 'shortcut' }))
 })
 
 export function init({ tabs, bookmarks }: { tabs: Tab[]; bookmarks: Bookmark[] }) {
@@ -19,7 +21,8 @@ export function init({ tabs, bookmarks }: { tabs: Tab[]; bookmarks: Bookmark[] }
       ...tab,
       active: index === 0
     })),
-    query: ''
+    query: '',
+    shortcuts: shortcuts.map((shortcut) => ({ ...shortcut, type: 'shortcut' }))
   })
 }
 
@@ -66,21 +69,7 @@ export function selectPreviousItem() {
 }
 
 export function searchItems(event: any) {
-  const input = event?.target?.value
-  let query
-  let mode
-
-  switch (true) {
-    case input.startsWith('. '):
-      mode = 'bookmarks'
-      query = input.replace('. ', '')
-      break
-
-    default:
-      mode = 'tabs'
-      query = input
-      break
-  }
+  const query = event?.target?.value
 
   const search = (elements: any[]) =>
     elements
@@ -88,39 +77,34 @@ export function searchItems(event: any) {
       .slice(0, 15)
 
   data.update((state: State) => {
-    let items = []
-
-    switch (mode) {
-      case 'bookmarks':
-        items = search(state.bookmarks)
-        break
-      case 'tabs':
-        items = search(state.tabs)
-    }
-
     return {
       ...state,
-      mode,
       query,
-      items
+      items: search([...state.tabs, ...state.bookmarks, ...state.shortcuts])
     }
   })
 }
 
-export function handleItem(item: Item) {
-  const unsubscribe = data.subscribe((state) => {
-    switch (state.mode) {
-      case 'tabs':
-        sendMessage('switchTab', item)
-        break
-      case 'bookmarks':
-        sendMessage('openBookmark', item)
-        break
-    }
-  })
+export function handleItem(item: Item, options: { shiftKey: boolean } = { shiftKey: false }) {
+  switch (true) {
+    case item.type === 'tab':
+      sendMessage('switchTab', item)
+      break
+    case item.type === 'bookmark' && options.shiftKey:
+      sendMessage('openUrlInNewTab', item)
+      break
+    case item.type === 'bookmark':
+      sendMessage('openUrlInCurrentTab', item)
+      break
+    case item.type === 'shortcut' && options.shiftKey:
+      sendMessage('openUrlInNewTab', item)
+      break
+    case item.type === 'shortcut':
+      sendMessage('openUrlInCurrentTab', item)
+      break
+  }
 
   setTimeout(() => {
-    unsubscribe()
     window.close()
   }, 100)
 }

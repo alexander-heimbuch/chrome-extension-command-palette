@@ -1,6 +1,7 @@
 import { findTab } from 'src/helper/tabs'
 import type { Message, Tab } from 'src/types'
-import * as bookmarkTransformation from 'src/transformations/bookmarks';
+import * as bookmarkTransformation from 'src/transformations/bookmarks'
+import * as tabTransformation from 'src/transformations/tabs'
 
 chrome.tabs.onHighlighted.addListener(async (highlighted) => {
   const highlightedTabs = highlighted.tabIds.map((id) => ({
@@ -10,7 +11,7 @@ chrome.tabs.onHighlighted.addListener(async (highlighted) => {
 
   const tabsAvailable = (await chrome.tabs.query({})) || []
 
-  const tabsHistory: { windowId: number; id: number }[] = await chrome.storage.sync
+  const tabsHistory: { windowId: number; id: number }[] = await chrome.storage.local
     .get(['tabs'])
     .then(({ tabs }) => tabs || [])
     .then((result) =>
@@ -25,16 +26,9 @@ chrome.tabs.onHighlighted.addListener(async (highlighted) => {
 
   const result: Tab[] = [...highlightedTabs, ...tabsHistory, ...fillerTabs]
     .map((tab) => findTab(tabsAvailable, tab))
-    .map(({ windowId, id, title, url, favIconUrl, index }) => ({
-      windowId,
-      id,
-      title,
-      url,
-      favIconUrl,
-      index
-    }))
+    .map(tabTransformation.extract)
 
-  await chrome.storage.sync.set({ tabs: result })
+  await chrome.storage.local.set({ tabs: result })
 })
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
@@ -51,9 +45,12 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
         tabs: message.options.index
       })
       break
-    case 'openBookmark':
-      await chrome.tabs.create({url: message.options.url });
-      break;
+    case 'openUrlInNewTab':
+      await chrome.tabs.create({ url: message.options.url })
+      break
+    case 'openUrlInCurrentTab':
+      await chrome.tabs.update(undefined, { url: message.options.url })
+      break
   }
 
   return true
@@ -62,9 +59,16 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
 async function fetchBookmarks() {
   const bookmarks = await chrome.bookmarks.search({})
-  await chrome.storage.sync.set({ bookmarks: bookmarks.map(bookmark => bookmarkTransformation.extract(bookmark, bookmarks)).filter(Boolean) })
+  await chrome.storage.local.set({
+    bookmarks: bookmarks
+      .map((bookmark) => bookmarkTransformation.extract(bookmark, bookmarks))
+      .filter(Boolean)
+  })
 }
 
-
-chrome.bookmarks.onChanged.addListener(fetchBookmarks);
+chrome.bookmarks.onChanged.addListener(fetchBookmarks)
 chrome.runtime.onInstalled.addListener(fetchBookmarks)
+chrome.runtime.onInstalled.addListener(async () => {
+  const availableTabs = (await chrome.tabs.query({})) || []
+  await chrome.storage.local.set({ tabs: availableTabs.map(tabTransformation.extract) })
+})

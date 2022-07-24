@@ -4,6 +4,7 @@ export type IStorage = {
 }
 
 export interface Tab {
+  type: 'tab'
   windowId: number
   id: number
   index: number
@@ -17,8 +18,13 @@ export interface SwitchTabMessage {
   options: Tab
 }
 
-export interface OpenBookmarkMessage {
-  type: 'openBookmark'
+export interface OpenUrlInNewTabMessage {
+  type: 'openUrlInNewTab'
+  options: Bookmark
+}
+
+export interface OpenUrlInCurrentTabMessage {
+  type: 'openUrlInCurrentTab'
   options: Bookmark
 }
 
@@ -26,9 +32,10 @@ export interface Item {
   [key: string]: any
   active: boolean
   title: string
+  type: 'tab' | 'bookmark' | 'shortcut'
 }
 
-export type Message = SwitchTabMessage | OpenBookmarkMessage
+export type Message = SwitchTabMessage | OpenUrlInCurrentTabMessage | OpenUrlInNewTabMessage
 
 export interface State {
   mode: 'tabs' | 'bookmarks'
@@ -36,10 +43,17 @@ export interface State {
   bookmarks: any[]
   items: Item[]
   query: string
+  shortcuts: Shortcut[]
 }
 
-
 export interface Bookmark {
+  type: 'bookmark'
   title: string
+  url: string
+}
+
+export interface Shortcut {
+  type: 'shortcut',
+  title: string,
   url: string
 }

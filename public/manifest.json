@@ -38,5 +38,5 @@
       "description": "Start the extension"
     }
   },
-  "permissions": ["storage", "tabs", "bookmarks"]
+  "permissions": ["tabs", "bookmarks", "storage"]
 }

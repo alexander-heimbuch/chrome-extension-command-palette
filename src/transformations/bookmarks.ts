@@ -12,6 +12,7 @@ export function extract(bookmark: chrome.bookmarks.BookmarkTreeNode, list: chrom
   }
 
   return {
+    type: 'bookmark',
     url: bookmark.url,
     title: extractTitle(bookmark, list).join(' > ')
   }

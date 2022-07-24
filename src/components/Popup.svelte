@@ -3,21 +3,21 @@
   import { onDestroy, onMount } from 'svelte'
   import Tab from './Tab.svelte'
   import Bookmark from './Bookmark.svelte'
+  import Shortcut from './Shortcut.svelte'
 
   export let tabs
   export let bookmarks
   let items
-  let mode
   let commandAction = false
   let searchInput: HTMLInputElement
 
   init({ tabs, bookmarks })
 
-  const handleSubmit = () => {
-    const activeItem = items.find((tab) => tab.active === true);
+  const handleSubmit = (options: { shiftKey: boolean } = { shiftKey: false }) => {
+    const activeItem = items.find((tab) => tab.active === true)
 
     if (activeItem) {
-      return handleItem(activeItem)
+      return handleItem(activeItem, options)
     }
   }
 
@@ -33,10 +33,21 @@
         selectPreviousItem()
         break
 
+      case event.key === 'p' && event.metaKey && event.shiftKey:
+        event.preventDefault()
+        commandAction = true
+        selectPreviousItem()
+        break
+
       case event.key === 'p' && event.metaKey:
         event.preventDefault()
         commandAction = true
         selectNextItem()
+        break
+
+      case event.key === 'Enter' && event.shiftKey:
+        event.preventDefault()
+        handleSubmit({ shiftKey: true })
         break
 
       case event.key === 'Enter':
@@ -61,7 +72,7 @@
 
   const unsubscribe = data.subscribe((state) => {
     items = state.items
-    mode = state.mode
+    console.log(items)
   })
 
   document.addEventListener('keydown', keydownEvents)
@@ -87,15 +98,19 @@
         <li>
           <button
             class="command-entry"
-            on:click={() => handleItem(item)}
+            on:click={(event) => handleItem(item, event)}
             class:active={item.active}
           >
-            {#if mode === 'tabs'}
+            {#if item.type === 'tab'}
               <Tab {item} />
             {/if}
-            {#if mode === 'bookmarks'}
+            {#if item.type === 'shortcut'}
+              <Shortcut {item} />
+            {/if}
+            {#if item.type === 'bookmark'}
               <Bookmark {item} />
             {/if}
+          </button>
         </li>
       {/each}
     </ul>
@@ -159,7 +174,6 @@
     align-items: center;
     cursor: pointer;
   }
-
 
   .command-entry.active {
     background: #1177bb;
