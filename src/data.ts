@@ -75,6 +75,10 @@ export function searchItems(event: any) {
     elements
       .filter((element) => !query || element?.title.toUpperCase().includes(query.toUpperCase()))
       .slice(0, 15)
+      .map((element, index) => ({
+        ...element,
+        active: index === 0
+      }))
 
   data.update((state: State) => {
     return {
