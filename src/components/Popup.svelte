@@ -72,7 +72,6 @@
 
   const unsubscribe = data.subscribe((state) => {
     items = state.items
-    console.log(items)
   })
 
   document.addEventListener('keydown', keydownEvents)
@@ -120,14 +119,15 @@
 </div>
 
 <style>
+  @import '../styles/environment';
   .popup {
     box-sizing: border-box;
     width: 600px;
     overflow: hidden;
-    background: #252526;
-    color: #d4d4d4;
+    background: var(--background-dark);
+    color: var(--text-primary);
     font-size: 14px;
-    border: 1px solid #007acc;
+    border: 1px solid var(--border-popup);
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
@@ -154,9 +154,9 @@
   .command-search {
     display: block;
     width: calc(100% - 22px);
-    background: #3c3c3c;
+    background: var(--background);
     margin: 4px;
-    border: 1px solid #04395e;
+    border: 1px solid var(--border-search);
     color: inherit;
     font-size: inherit;
     padding: 8px 6px;
@@ -166,7 +166,7 @@
     padding: 8px;
   }
 
-  .command-entry {
+  .command-entry, .command-entry svg {
     width: 100%;
     text-align: left;
     padding: 8px 10px;
@@ -175,10 +175,11 @@
     cursor: pointer;
   }
 
-  .command-entry.active {
-    background: #1177bb;
+  .command-entry.active, .command-entry.active svg {
+    color: var(--text-entry-active);
+    background: var(--background-entry);
   }
   .command-entry:hover {
-    background: #264f78;
+    background: var(--background-entry-hover);
   }
 </style>

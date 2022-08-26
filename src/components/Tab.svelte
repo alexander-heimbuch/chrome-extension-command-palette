@@ -4,7 +4,7 @@
 </script>
 
 {#if item.favIconUrl}
-  <img src={item.favIconUrl} class="tabs-icon" alt="favicon" />
+  <img src={item.favIconUrl} class="tabs-icon" />
 {:else}
   <svg
     xmlns="http://www.w3.org/2000/svg"

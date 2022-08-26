@@ -31,6 +31,7 @@ chrome.tabs.onHighlighted.addListener(async (highlighted) => {
   await chrome.storage.local.set({ tabs: result })
 })
 
+
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   switch (message.type) {
     case 'switchTab':

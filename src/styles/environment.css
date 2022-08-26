@@ -1,0 +1,27 @@
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: rgba(60, 64, 67);
+    --background-dark: rgba(32, 33, 36);
+    --text-primary: rgba(232, 234, 237);
+    --text-secondary: rgba(154, 160, 166);
+    --text-entry-active: rgba(232, 234, 237);
+    --border-popup: #007acc;
+    --border-search: #04395e;
+    --background-entry: #1177bb;
+    --background-entry-hover: #264f78;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: rgb(248, 249, 250);
+    --background-dark: rgb(248, 249, 250);
+    --text-primary: rgb(32, 33, 36);
+    --text-secondary: rgb(154, 160, 166);
+    --text-entry-active: rgb(218, 220, 224);
+    --border-popup: #007acc;
+    --border-search: #04395e;
+    --background-entry: #1177bb;
+    --background-entry-hover: #264f78;
+  }
+}

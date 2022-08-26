@@ -1,7 +1,7 @@
 {
   "name": "Command Palette",
   "description": "Search Tabs and Bookmarks like in VS Code",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 3,
   "icons": {
     "16": "/icons/command-line-16.png",
@@ -9,12 +9,6 @@
     "48": "/icons/command-line-48.png",
     "128": "/icons/command-line-128.png"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["src/pages/content/index.js"]
-    }
-  ],
   "background": {
     "service_worker": "src/pages/background/index.js"
   },
@@ -37,6 +31,10 @@
       },
       "description": "Start the extension"
     }
+  },
+  "options_ui": {
+    "page": "src/pages/options/index.html",
+    "open_in_tab": false
   },
   "permissions": ["tabs", "bookmarks", "storage"]
 }
