@@ -1,10 +1,11 @@
 {
     "name": "chrome-extension-command-palette",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "scripts": {
         "dev": "vite build -w",
         "build": "vite build",
+        "compress": "zip -r dist/extension.zip dist/",
         "check": "svelte-check --tsconfig ./tsconfig.json"
     },
     "dependencies": {
