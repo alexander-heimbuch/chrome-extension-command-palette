@@ -2,8 +2,7 @@
 
 > Your beloved IDE command palette in the browser.
 
-![Tabs Search](./public/screenshots/screenshot-command-palette.jpg)
-![Bookmarks Search](./public/screenshots/screenshot-command-palette-2.jpg)
+![Workflow](./public/screenshots/workflow.gif)
 
 ## Development
 
